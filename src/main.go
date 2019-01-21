@@ -8,8 +8,8 @@ import (
 
 var (
 	verbose  = kingpin.Flag("verbose", "Verbose mode.").Short('v').Bool()
-	parallel = kingpin.Flag("parallel", "Number of parallel threads.").Short('p').Int()
-	archiver = kingpin.Arg("archiver", "Method to use for archiving.").String()
+	parallel = kingpin.Flag("parallel", "Number of parallel threads.").Default("5").Short('p').Int()
+	archiver = kingpin.Arg("archiver", "Method to use for archiving.").Default("s3").String()
 )
 
 func main() {
@@ -23,5 +23,5 @@ func main() {
 	|     |_ |   |  | ||       || | |   ||       ||   _   ||       || |_|   |
 	|_______||___|  |_||_______||_|  |__||_______||__| |__||_______||_______|
 	`)
-	LogIfVerbose(*verbose, "Archiving with %s\n", *archiver)
+	LogIfVerbose(*verbose, "Archiving with %s using %d parallel threads.\n", *archiver, *parallel)
 }
