@@ -32,5 +32,7 @@ func main() {
 	|_______||___|  |_||_______||_|  |__||_______||__| |__||_______||_______|
 	`)
 	LogIfVerbose("Archiving with %s using %d parallel threads.\n", *archiver, *parallel)
-	getRepositoryList()
+	repos := getRepositoryList()
+	list := download(*parallel, repos)
+	LogIfVerbose("Downloaded %d repositories.\n", len(list))
 }
