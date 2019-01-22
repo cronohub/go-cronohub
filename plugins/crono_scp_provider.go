@@ -17,7 +17,7 @@ func (Archive) Execute(filename string) bool {
 
 func main() {
 	plugin.Serve(&plugin.ServeConfig{
-		HandshakeConfig: sdk.Handshake,
+		HandshakeConfig: Handshake,
 		Plugins: map[string]plugin.Plugin{
 			"crono_scp_provider": &sdk.ArchiveGRPCPlugin{Impl: &Archive{}},
 		},
