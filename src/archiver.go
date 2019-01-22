@@ -51,6 +51,10 @@ func download(p int, repos []*github.Repository) []string {
 	return archiveList
 }
 
-func archive(plugin string, parallel int) {
-
+func archive(plugin string, parallel int, list []string) {
+	LogIfVerbose("Running with plugin %s parallel %d threads on %d items.\n", plugin, parallel, len(list))
+	for _, l := range list {
+		// needs file extension
+		runPlugin("crono_"+plugin+"_provider", l)
+	}
 }
