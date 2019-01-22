@@ -17,15 +17,6 @@ import (
 
 var pluginMap = make(map[string]plugin.Plugin, 0)
 
-// Handshake is a common handshake that is shared by plugin and host.
-var Handshake = plugin.HandshakeConfig{
-	// This isn't required when using VersionedPlugins
-	ProtocolVersion: 1,
-	MagicCookieKey:  "CRONOHUB_PLUGINS",
-	// Never ever change this.
-	MagicCookieValue: "9f4c000c-dd07-4968-a33a-a42337c5f479",
-}
-
 func init() {
 	log := grpclog.NewLoggerV2(os.Stdout, ioutil.Discard, ioutil.Discard)
 	grpclog.SetLoggerV2(log)
@@ -82,7 +73,7 @@ func getRawForPlugin(v string) interface{} {
 		cmd = exec.Command(filepath.Join(dir, v))
 	}
 	client := plugin.NewClient(&plugin.ClientConfig{
-		HandshakeConfig: Handshake,
+		HandshakeConfig: sdk.Handshake,
 		Plugins:         pluginMap,
 		Cmd:             cmd,
 		AllowedProtocols: []plugin.Protocol{
