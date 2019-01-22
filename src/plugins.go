@@ -2,25 +2,22 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/cronohub/sdk"
-	"google.golang.org/grpc/grpclog"
 
 	plugin "github.com/hashicorp/go-plugin"
 )
 
 var pluginMap = make(map[string]plugin.Plugin, 0)
 
-func init() {
-	log := grpclog.NewLoggerV2(os.Stdout, ioutil.Discard, ioutil.Discard)
-	grpclog.SetLoggerV2(log)
-}
+// func init() {
+// 	log := grpclog.NewLoggerV2(os.Stdout, ioutil.Discard, ioutil.Discard)
+// 	grpclog.SetLoggerV2(log)
+// }
 
 func loadPlugins() {
 	ps, _ := discoverPlugins("crono_*_provider")
@@ -34,9 +31,6 @@ func runPlugin(name string, filename string) (bool, error) {
 	raw := getRawForPlugin(name)
 
 	p := raw.(sdk.Archive)
-	fmt.Println("FILENAME: ", filename)
-	fmt.Println("NAME: ", name)
-	fmt.Println(pluginMap)
 	ret := p.Execute(filename)
 	if !ret {
 		LogIfVerbose("A plugin with name '%s' prevented archive to run.\n", name)

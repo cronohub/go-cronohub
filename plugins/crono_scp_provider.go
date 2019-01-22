@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"io/ioutil"
 
 	"github.com/cronohub/sdk"
 	plugin "github.com/hashicorp/go-plugin"
@@ -11,7 +11,7 @@ type Archive struct{}
 
 // Execute is the entry point to this plugin.
 func (Archive) Execute(filename string) bool {
-	log.Println("got filename: ", filename)
+	ioutil.WriteFile("test.txt", []byte(filename), 0766)
 	return true
 }
 
@@ -21,8 +21,6 @@ func main() {
 		Plugins: map[string]plugin.Plugin{
 			"crono_scp_provider": &sdk.ArchiveGRPCPlugin{Impl: &Archive{}},
 		},
-
-		// A non-nil value here enables gRPC serving for this plugin...
 		GRPCServer: plugin.DefaultGRPCServer,
 	})
 }
