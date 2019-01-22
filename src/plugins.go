@@ -3,17 +3,24 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/cronohub/sdk"
+	"google.golang.org/grpc/grpclog"
 
 	plugin "github.com/hashicorp/go-plugin"
 )
 
 var pluginMap = make(map[string]plugin.Plugin, 0)
+
+func init() {
+	log := grpclog.NewLoggerV2(os.Stdout, ioutil.Discard, ioutil.Discard)
+	grpclog.SetLoggerV2(log)
+}
 
 func loadPlugins() {
 	ps, _ := discoverPlugins("crono_*_provider")
@@ -27,10 +34,13 @@ func runPlugin(name string, filename string) (bool, error) {
 	raw := getRawForPlugin(name)
 
 	p := raw.(sdk.Archive)
+	fmt.Println("FILENAME: ", filename)
+	fmt.Println("NAME: ", name)
+	fmt.Println(pluginMap)
 	ret := p.Execute(filename)
 	if !ret {
-		log.Printf("A plugin with name '%s' prevented create to run.\n", name)
-		err := errors.New("plugin prevented create to run")
+		LogIfVerbose("A plugin with name '%s' prevented archive to run.\n", name)
+		err := errors.New("plugin prevented archive to run")
 		return false, err
 	}
 	return true, nil
@@ -45,7 +55,6 @@ func discoverPlugins(postfix string) (p []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Plugins found: ", plugs)
 	return plugs, nil
 }
 
@@ -74,7 +83,7 @@ func getRawForPlugin(v string) interface{} {
 	defer client.Kill()
 	grpcClient, err := client.Client()
 	if err != nil {
-		fmt.Println("Error creating client:", err.Error())
+		log.Println("Error creating client:", err.Error())
 		os.Exit(1)
 	}
 
@@ -82,7 +91,7 @@ func getRawForPlugin(v string) interface{} {
 	// Request the plugin
 	raw, err := grpcClient.Dispense(pluginName)
 	if err != nil {
-		fmt.Println("Error requesting plugin:", err.Error())
+		log.Println("Error requesting plugin:", err.Error())
 		os.Exit(1)
 	}
 	return raw
