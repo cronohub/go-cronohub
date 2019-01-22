@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"io"
 	"log"
 	"net/http"
@@ -9,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/google/go-github/v21/github"
-	"golang.org/x/oauth2"
 )
 
 // download will download archives of the users repositories.
@@ -19,11 +17,7 @@ func download(p int, repos []*github.Repository) []string {
 	sema := make(chan struct{}, p)
 	archiveList := make([]string, 0)
 	var wg sync.WaitGroup
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
+	client := NewClient()
 	for _, r := range repos {
 		wg.Add(1)
 		go func(repo *github.Repository) {
@@ -40,7 +34,7 @@ func download(p int, repos []*github.Repository) []string {
 			}
 			defer out.Close()
 			LogIfVerbose("Started downloading archive for: %s\n", downloadURL)
-			resp, err := tc.Get(downloadURL)
+			resp, err := client.client.Get(downloadURL)
 			if err != nil {
 				log.Println("failed to get zip archive for repo: ", repo.GetName())
 				return
