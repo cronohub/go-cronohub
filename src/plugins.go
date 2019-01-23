@@ -1,13 +1,12 @@
 package main
 
 import (
-	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 
-	"github.com/cronohub/sdk"
+	"github.com/cronohub/cronohub/sdk"
 
 	plugin "github.com/hashicorp/go-plugin"
 )
@@ -31,13 +30,13 @@ func runPlugin(name string, filename string) (bool, error) {
 	raw := getRawForPlugin(name)
 
 	p := raw.(sdk.Archive)
-	ret := p.Execute(filename)
-	if !ret {
+	ret, err := p.Execute(filename)
+	if err != nil {
 		LogIfVerbose("A plugin with name '%s' prevented archive to run.\n", name)
-		err := errors.New("plugin prevented archive to run")
 		return false, err
 	}
-	return true, nil
+	log.Println("ret was: ", ret)
+	return ret, nil
 }
 
 func discoverPlugins(postfix string) (p []string, err error) {
@@ -64,7 +63,7 @@ func getRawForPlugin(v string) interface{} {
 		ruby := getExecutionBinary("ruby")
 		cmd = exec.Command(ruby, filepath.Join(dir, v))
 	default:
-		cmd = exec.Command(filepath.Join(dir, v))
+		cmd = exec.Command("sh", "-c", "./"+v)
 	}
 	client := plugin.NewClient(&plugin.ClientConfig{
 		HandshakeConfig: sdk.Handshake,
@@ -81,9 +80,8 @@ func getRawForPlugin(v string) interface{} {
 		os.Exit(1)
 	}
 
-	pluginName := filepath.Base(v)
 	// Request the plugin
-	raw, err := grpcClient.Dispense(pluginName)
+	raw, err := grpcClient.Dispense(v)
 	if err != nil {
 		log.Println("Error requesting plugin:", err.Error())
 		os.Exit(1)

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package cronoprot;
+
+message Payload {
+    string file = 1;
+}
+
+message Status {
+    bool success = 1;
+}
+
+message Empty{}
+
+service Archive {
+    rpc Execute (Payload) returns (Status);
+}
+

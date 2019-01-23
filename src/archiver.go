@@ -53,5 +53,8 @@ func download(p int, repos []*github.Repository) []string {
 
 func archive(plugin string, parallel int, list []string) {
 	LogIfVerbose("Running with plugin %s parallel %d threads on %d items.\n", plugin, parallel, len(list))
-	runPlugin("crono_"+plugin+"_provider", list[0])
+	_, err := runPlugin("crono_"+plugin+"_provider", list[0])
+	if err != nil {
+		log.Fatal("error while running archiver: ", err)
+	}
 }
