@@ -6,12 +6,12 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/cronohub/cronohub/sdk"
+	"github.com/cronohub/go-cronohub/sdk"
 
-	plugin "github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/go-plugin"
 )
 
-var pluginMap = make(map[string]plugin.Plugin, 0)
+var pluginMap = make(map[string]plugin.Plugin)
 
 // func init() {
 // 	log := grpclog.NewLoggerV2(os.Stdout, ioutil.Discard, ioutil.Discard)
@@ -27,7 +27,8 @@ func loadPlugins() {
 }
 
 func runPlugin(name string, filename string) (bool, error) {
-	raw := getRawForPlugin(name)
+	raw, client := getRawAndClientForPlugin(name)
+	defer client.Kill()
 
 	p := raw.(sdk.Archive)
 	ret, err := p.Execute(filename)
@@ -51,7 +52,9 @@ func discoverPlugins(postfix string) (p []string, err error) {
 	return plugs, nil
 }
 
-func getRawForPlugin(v string) interface{} {
+// getRawAndClientForPlugin returns the client so runPlugin can defer kill it.
+// If we kill the client here, it means that runPlugin will run on a closed client.
+func getRawAndClientForPlugin(v string) (interface{}, *plugin.Client) {
 	var cmd *exec.Cmd
 	dir, _ := os.Getwd()
 	ext := filepath.Ext(v)
@@ -69,11 +72,9 @@ func getRawForPlugin(v string) interface{} {
 		HandshakeConfig: sdk.Handshake,
 		Plugins:         pluginMap,
 		Cmd:             cmd,
-		AllowedProtocols: []plugin.Protocol{
-			plugin.ProtocolGRPC},
+		AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
 	})
 
-	defer client.Kill()
 	grpcClient, err := client.Client()
 	if err != nil {
 		log.Println("Error creating client:", err.Error())
@@ -86,7 +87,7 @@ func getRawForPlugin(v string) interface{} {
 		log.Println("Error requesting plugin:", err.Error())
 		os.Exit(1)
 	}
-	return raw
+	return raw, client
 }
 
 func getExecutionBinary(want string) string {
