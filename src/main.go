@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v3-unstable"
+	"gopkg.in/alecthomas/kingpin.v3-unstable"
 )
 
 var (

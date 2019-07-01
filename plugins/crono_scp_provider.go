@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/cronohub/go-cronohub/sdk"
+	"github.com/cronohub/sdk"
 	"github.com/hashicorp/go-plugin"
 )
 

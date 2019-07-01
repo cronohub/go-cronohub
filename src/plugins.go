@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/cronohub/go-cronohub/sdk"
+	"github.com/cronohub/sdk"
 
 	"github.com/hashicorp/go-plugin"
 )
