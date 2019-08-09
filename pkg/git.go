@@ -28,7 +28,7 @@ func NewClient() *GitClient {
 	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
+		&oauth2.Token{AccessToken: go_cronohub.token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 

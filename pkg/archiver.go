@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"io"
@@ -43,7 +43,7 @@ func download(p int, repos []*github.Repository) []string {
 			if resp.StatusCode != http.StatusOK {
 				log.Println("status was not 200: ", resp.Status)
 			}
-			io.Copy(out, resp.Body)
+			_, _ = io.Copy(out, resp.Body)
 			archiveList = append(archiveList, archiveName)
 		}(r)
 	}
