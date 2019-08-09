@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
 	"log"
 	"net/http"
@@ -12,6 +14,8 @@ func main() {
 	if len(token) < 1 {
 		log.Fatal("Please set CRONO_GITHUB_TOKEN to a valid token in order to authenticate to github.")
 	}
+	client := NewClient(token)
+	client.getRepositoryList()
 }
 
 // GitClient is a client with an authenticated http client a context
@@ -26,7 +30,7 @@ var gClient *GitClient
 
 // NewClient creates a new Archiver client. This will return an existing client
 // if it already was created.
-func NewClient() *GitClient {
+func NewClient(token string) *GitClient {
 	log.Println("Creating github client")
 	if gClient != nil {
 		return gClient
@@ -55,7 +59,7 @@ func (client GitClient) getRepositoryList() []*github.Repository {
 	}
 
 	var allRepos []*github.Repository
-	LogIfVerbose("Gathering repositories...\n")
+	log.Println("Gathering repositories...")
 	for {
 		repos, resp, err := client.gClient.Repositories.List(client.ctx, user.GetLogin(), opt)
 		if err != nil {
@@ -68,6 +72,6 @@ func (client GitClient) getRepositoryList() []*github.Repository {
 		opt.Page = resp.NextPage
 	}
 
-	LogIfVerbose("Retrieved %d repositories.", len(allRepos))
+	log.Printf("Retrieved %d repositories.\n", len(allRepos))
 	return allRepos
 }
